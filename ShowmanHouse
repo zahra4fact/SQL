@@ -1,0 +1,490 @@
+--create database ShowmanHouse
+--on
+--(
+--FileName ='D:\NIIT\Q2\project\ShowmanHouse.mdf',
+--Name = 'ShowmanHouse.mdf'
+--)
+--log on
+--(
+--FileName ='D:\NIIT\Q2\project\ShowmanHouse.ldf',
+--Name = 'ShowmanHouse.ldf'
+--)
+----------------------------Create schema-------------------------------
+
+--create schema HumanResources
+--Go
+--create schema Managment
+--Go
+--create schema Eventes
+--Go
+--Create schema Information
+--GO
+
+-------------------------------Create Table Phone-------------------------------------
+
+--create table Information.Phone
+--(
+--Id_Phone int identity,
+--Id_EmpORCust int not null,
+--PhoneType nvarchar(30)not null,
+--PhoneNumber nvarchar(max)not null,
+--Flag bit,
+--constraint PK_Phone primary key (Id_Phone),
+--constraint CH_PhonNum check (PhoneNumber like '[0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]'),
+--constraint CH_Type check (PhoneType in ('Mobile','Home','Fax','Work'))
+--)
+-------"Insert Phone"-----
+
+--alter proc USP_InsertPhone
+--@EmpORCustID int,
+--@PhoneType nvarchar(50),
+--@PhoneNumber nvarchar(50),
+--@Flag bit
+--as
+--Begin try 
+--insert into Information.Phone values(@EmpORCustID,ltrim(@PhoneType),ltrim(@PhoneNumber),@Flag)
+--End try
+--Begin catch
+--Print Error_message()
+--end Catch
+--Go
+--dbcc checkident('Information.Phone',reseed,0)
+--------**************------
+
+--exec USP_InsertPhone '1','Mobile','00-912-6454-234','0'
+--Go
+--exec USP_InsertPhone '2','Mobile','00-911-3445-123','0'
+--Go
+--exec USP_InsertPhone '1','Home','00-241-6230-632','0'
+--Go
+--exec USP_InsertPhone '1','Home','00-214-3211-304','1'
+--Go
+--exec USP_InsertPhone '1','Fax','00-323-4340-874','0'
+
+--------------------------------create table city------------------------------------
+
+--create table Information.City
+--(
+--Id_City int identity,
+--NameCity nvarchar(20)not null,
+--constraint PK_City primary key(Id_City)
+--)
+--Go
+-------"Insert City"-----
+
+--alter proc USP_InsertCity
+--@NameCity Nvarchar(50)
+--as
+--begin try
+--insert into Information.City values(ltrim(@NameCity))
+--end try
+--begin catch
+--print Error_number()
+--end catch
+--Go
+--------**************------
+--exec USP_InsertCity 'Peru'
+--Go
+--exec USP_InsertCity 'Chile'
+--Go
+--exec USP_InsertCity 'Argentina'
+--Go
+--exec USP_InsertCity 'Brazil'
+
+-----------------------------Create Table Employee------------------------------------
+
+--create table HumanResources.Employee
+--(
+--Id_Emp int identity,
+--FirstName Nvarchar(50)not null,
+--LastName nvarchar(50)not null,
+--Addres nvarchar(50)not null,
+--Title nvarchar(50),
+--constraint PK_Emp primary key(Id_Emp),
+--constraint ch_title check (title in('Executive','Senior Executive','Management Trainee','Event Management','Senior Event Management'))
+--)
+--Go
+-------"Insert Employee"-----
+
+--create proc USP_InsertEmployee
+--@firstname nvarchar(50),
+--@lasttname nvarchar(50),
+--@address nvarchar(50),
+--@title nvarchar(50)
+--as
+--begin try
+--insert into HumanResources.Employee values(ltrim(@firstname),ltrim(@lasttname),ltrim(@address),@title)
+--end try
+--begin catch
+--print Error_number()
+--end catch
+--------**************------
+
+--exec USP_InsertEmployee 'Pedro','Pablo','st38,A apartemant','Senior Executive'
+--Go
+--exec USP_InsertEmployee 'Anjel','ford','st105 D apartemant','Event Management'
+--Go
+--exec USP_InsertEmployee 'Jolia','Peterson','st10T apartemant','Executive'
+--Go
+--exec USP_InsertEmployee 'Adam','James','st62 E apartemant','Senior Event Management'
+--Go
+--exec USP_InsertEmployee 'Losio','Rabert','st12 C apartemant','Executive'
+-----------------------------Create Table Customer-----------------------------------
+
+--create table Eventes.Customer
+--(
+--Id_Cust int identity,
+--Name nvarchar(50)not null,
+--Addres nvarchar(50)not null,
+--State_Org nvarchar(50)not null,
+--CityID int not null,
+--constraint PK_Cust primary key(Id_Cust),
+--constraint FK_City foreign key(CityID) references Information.City on delete cascade
+--)
+--Go
+-------"Insert Customer"-----
+
+--create proc USP_InsertCustomer
+--@name nvarchar(50),
+--@address nvarchar(50),
+--@State nvarchar(50),
+--@City int
+--as
+--begin try
+--insert into Eventes.Customer values(ltrim(@name),ltrim(@address),ltrim(@State),ltrim(@City))
+--end try
+--begin catch
+--print Error_number()
+--end catch
+--------**************------
+
+--exec USP_InsertCustomer 'Fernando','st 30','Art','2'
+--Go
+--exec USP_InsertCustomer 'Jolia','st 12','Fashion','1'
+--Go
+--exec USP_InsertCustomer 'Karmen','st 78','Model','2'
+--Go
+---------------------------------create Table EventTypeFile-------------------------
+
+--create table Eventes.EventType
+--(
+--Id_TypeEvent int identity,
+--Descriptions nvarchar(100),
+--ChargePerPerson int not null,
+--constraint PK_TypeEvent primary key(Id_TypeEvent),
+--constraint check_Price check(ChargePerPerson>0),
+--constraint ch_Type check (Descriptions in('Celebrity show','Fashion show','Chat show','Musical Extravaganazas','Exhibitions','Fairs','Charity show')) 
+--)
+--Go
+-------"Insert PEventType"-----
+
+--alter proc USP_InsertEventType
+--@des nvarchar(50),
+--@charge int
+--as
+--begin try
+--insert into Eventes.EventType values(ltrim(@des),@charge)
+--end try
+--begin catch
+--print Error_number()
+--end catch
+--Go
+--dbcc checkident('Eventes.EventType',reseed,0)
+--------**************------
+
+--exec USP_InsertEventType 'Celebrity show','6'
+--Go
+--exec USP_InsertEventType 'Fashion show','8'
+--Go
+--exec USP_InsertEventType 'Chat show','4'
+--Go
+--exec USP_InsertEventType 'Musical Extravaganazas','5'
+--Go
+--exec USP_InsertEventType 'Exhibitions','6'
+--Go
+--exec USP_InsertEventType 'Fairs','10'
+--Go
+--exec USP_InsertEventType 'Charity show','9'
+--Go
+-------------------------------------create Table Events----------------------------
+
+--create table Managment.Events
+--(
+--Id_Event int identity,
+--EventName nvarchar(50)not null,
+--Location nvarchar(50) not null,
+--StartDate date not null,
+--EndDate date not null,
+--Staff_required int not null,
+--EmployeeID int,
+--CustomerID int,
+--EventTypeID int,
+--NumOfPepole int ,
+--constraint PK_Event primary key(Id_Event),
+--constraint Check_staff check(Staff_required>0),
+--constraint Check_StartDate check(StartDate<EndDate),
+--constraint Check_Date1 check(StartDate>=getdate()), 
+--constraint Check_Date2 check(EndDate>=getdate()), 
+--constraint FK_Emp foreign key(employeeID) references HumanResources.Employee on delete cascade,
+--constraint FK_Cust foreign key(CustomerID) references Eventes.Customer on delete cascade,
+--constraint FK_TypeEvent foreign key(EventTypeID) references Eventes.EventType on delete cascade
+--)
+--Go
+--dbcc checkident('Managment.Events',reseed,0)
+--Go
+-------"Insert Events"-----
+
+--create proc USP_InsertEvent
+--@name nvarchar(50),
+--@Loc nvarchar(50),
+--@StartDate Date,
+--@EndDate Date,
+--@Staff int,
+--@EmpID int,
+--@CustID int,
+--@Eventtype int,
+--@number int
+--as
+--begin try
+--insert into Managment.Events  values(ltrim(@name),ltrim(@Loc),ltrim(@StartDate),ltrim(@EndDate),ltrim(@Staff),@EmpID,@CustID,@Eventtype,ltrim(@number))
+--end try
+--begin catch
+--print Error_message()
+--end catch
+--------**************------
+
+--exec USP_InsertEvent 'Fashion','Home','may 24,2012 ','jun 2,2012','30','1','2','2','80'
+--Go
+--exec USP_InsertEvent 'Exibition','Work','may 24,2012','jun 5,2012','20','2','1','5','50'
+------------------------------create PaymentMethod--------------------------
+
+--Create table Managment.PaymentMethod
+--(
+--Id_PaymentMethod int identity,
+--Description nvarchar(20),
+--constraint PK_Method primary key(Id_PaymentMethod)
+--constraint Ch_Des check (Description in('Check','Cash','Credit Card'))
+--)
+--Go
+-------"Insert PaymentMethod"-----
+
+--create proc USP_PaymentMethod
+--@des nvarchar(50)
+--as
+--begin try
+--insert into Managment.PaymentMethod values(ltrim(@des))
+--end try
+--begin catch
+--print Error_number()
+--end catch
+--------**************------
+
+--exec USP_PaymentMethod 'Check'
+--Go
+--exec USP_PaymentMethod 'Credit Card'
+--Go
+--exec USP_PaymentMethod 'Cash'
+
+
+-------------------------------create Table Payment--------------------------
+
+--create table Managment.Payment
+--(
+--Id_Payment int identity,
+--EventID int ,
+--PaymentDate date,
+--PaymentMethodID int,
+--PaymentAmount int,
+--constraint PK_Payment primary key(Id_Payment),
+--constraint FK_Method foreign key(PaymentMethodID) references Managment.PaymentMethod on delete cascade,
+--constraint FK_Event foreign key(EventID) references Managment.Events on delete cascade 
+--)
+--Go
+-------"create Trigger for Paymente"-----
+
+--Create trigger Check_PayDate
+--on Managment.Payment
+--for insert,update
+--as
+--declare @PayDate date
+--declare @StartEvent date
+--select @PayDate=PaymentDate from Managment.Payment
+--select @StartEvent=StartDate from Managment.Events
+--begin 
+--       if(@PayDate>=@StartEvent)
+--               begin
+--               commit tran
+--               end
+--            else
+--                   if (@PayDate>=GETDATE())
+--                   begin
+--                   commit tran
+--                   end
+--               else
+--                  begin
+--                  print 'you can insert becuse youre payment date is loss start date'
+--                  rollback transaction
+--                  end
+--end 
+-------"Insert Payment"-----
+
+--create proc USP_InsertPayment
+--@EventID int,
+--@PayDate date,
+--@PayMethod int,
+--@Charge int,
+--@Numpeople int
+--as
+--begin try
+--select @Charge=ChargePerPerson from Eventes.EventType
+--select @Numpeople=NumOfPepole from Managment.Events
+--insert into Eventes.Customer values(@EventID,@PayDate,@PayMethod,@charge*@Numpeople)
+--end try
+--begin catch
+--print Error_number()
+--end catch
+-------------------------------create Table Credit--------------------------------
+
+--create table Managment.CreditCard
+--(
+--Id_Card int identity,
+--PaymentMethodID int,
+--CreditCardNum nvarchar(50)not null,
+--CardHoldersName nvarchar(50) not null,
+--CreditCardExpDate nvarchar(50) not null,
+--constraint PK_Card primary key(Id_card),
+--constraint FK_PayMethod foreign key(PaymentMethodID) references Managment.PaymentMethod  on delete cascade,
+--constraint Check_Date check(CreditCardExpDate>=getdate())
+--)
+--Go
+-------"Insert Credit"-----
+
+--create proc USP_InsertCredit
+--@PayMethod int,
+--@CardNum nvarchar(50),
+--@CardHolder nvarchar(50),
+--@CardExp nvarchar(50)
+--as
+--begin try
+--open symmetric key datakey
+--decryption by certificate data
+--insert into Managment.CreditCard values(@PayMethod,encryptbykey(key_guid('datakey'),@CardNum),encryptbykey(key_guid('datakey'),@CardHolder),encryptbykey(key_guid('datakey'),@CardExp))
+--end try
+--begin catch
+--print Error_message()
+--end catch
+--Go
+
+-------------------------------create Table Check--------------------------------
+
+--create table Managment.CheckPay
+--(
+--Id_Check int identity,
+--PaymentMethodID int,
+--CheckNumber int not null,
+--constraint PK_Check primary key(Id_Check),
+--constraint FK_PayMethod2 foreign key(PaymentMethodID) references Managment.PaymentMethod  on delete cascade,
+--)
+--Go
+-------"Insert Check"-----
+
+--create proc USP_InsertCheck
+--@PayMethod int,
+--@CheckNum int
+--as
+--begin try
+--open symmetric key datakey
+--decryption by certificate data
+--insert into Managment.CheckPay values(@PayMethod,encryptbykey(key_guid('datakey'),ltrim(@CheckNum)))
+--end try
+--begin catch
+--print Error_number()
+--end catch
+-------------create information employee-------
+
+--bcp select * from HumanResources.Employee E,Managment.Events M where E.Id_Emp=M.EmployeeID 
+--queryout d:\Employee.txt -T -t , -c 
+-----------------------------create index customer----------------------------------
+--create unique index Index_Cust
+--on Eventes.Customer(Id_Cust)
+
+-------"proc for Index_Cust"-------
+--create proc USP_CustForEvent
+--@date date
+--as
+--begin try
+--select * from Eventes.Customer c join Managment.Events e on c.Id_Cust=e.CustomerID
+--where @date=e.StartDate
+--end try
+--begin catch
+--print error_message()
+--end catch
+--Go
+--exec USP_CustForEvent 'may 24,2012'
+
+---------------------------create index Event and Pay----------------------------------
+--create unique index Index_event
+--on Managment.Events(Id_Event)
+--Go
+--create unique index Index_Pay
+--on Managment.Payment(Id_Payment)
+--Go
+-------"View for Index_Event and Pay"-----
+--create view PayPending
+--as
+--select * from Managment.Events e join Managment.Payment p on e.Id_Event=p.EventID
+--where p.PaymentAmount=0
+--Go
+
+---------------------------create index Staff----------------------------------
+--create nonclustered index Index_Staff
+--on Managment.Events(Staff_Required)
+
+-------"View for View"-----
+--create view [Staff>25]
+--as
+--select * from Managment.Events where Staff_required>25
+--Go
+
+--------------create login name--------------
+--create login William
+--with password='6666'
+--Go
+--create user William for login William
+--Go
+--create login Sam
+--with password='1234'
+--Go
+--create user Sam for login Sam
+--Go
+--create login Chris
+--with password='6565'
+--Go
+--create user Chris for login Chris
+--Go
+--create login Sara
+--with password='5678'
+--Go
+--create user Sara for login Sara
+-------"deny for developer"-----
+--deny alter to William
+--Go
+--deny alter to Sam
+--Go
+--deny alter to Sara
+
+------------create Backup----------------
+--exec sp_addumpdevice 'disk','ShowmanHouse','c:\Backup\ShowmanHouse.bak';
+--backup database ShowmanHouse to ShowmanHouse
+
+-----------create encrypte format----------
+--create master key
+--encryption by password='zhaf'
+--Go
+--create certificate data
+--with subject='Encrypt My Informations'
+--Go
+--create symmetric key datakey
+--with algorithm=AES_256
+--encryption by certificate data
+
